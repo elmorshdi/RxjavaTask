@@ -41,6 +41,9 @@ class MainFragment : Fragment(),
                 view.context, ::signOut, view
             )
         }
+        binding.mainAddButton.setOnClickListener {
+            val action = MainFragmentDirections.actionMainFragmentToAddItemFragment()
+            view.findNavController().navigate(action)}
         viewModel.getProducts()
         viewModel.uiStateFlow.observe(viewLifecycleOwner, Observer {
             when (it) {
