@@ -1,9 +1,9 @@
 package com.elmorshdi.internTask.domain.di
 
 import android.content.SharedPreferences
-import com.elmorshdi.internTask.helper.Constant
 import com.elmorshdi.internTask.datasource.network.ApiService
 import com.elmorshdi.internTask.datasource.network.MyInterceptor
+import com.elmorshdi.internTask.helper.Constant
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

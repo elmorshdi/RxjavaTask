@@ -113,7 +113,6 @@
             android:layout_marginEnd="@dimen/_20sdp"
             android:layout_marginBottom="@dimen/_10sdp"
             android:background="@color/blue"
-            android:onClick="@{ viewModels::addProduct}"
             android:text="@string/add_new_item"
             android:textColor="@color/white"
             android:textSize="@dimen/_16ssp"

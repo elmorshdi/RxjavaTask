@@ -5,7 +5,8 @@ plugins {
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
-}
+    id 'kotlin-android'
+ }
 
 android {
     compileSdk 31
@@ -42,6 +43,12 @@ dependencies {
 
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
     def nav_version = "2.4.2"
+    def roomVersion = '2.3.0'
+// Room components
+    implementation "androidx.room:room-ktx:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
+    androidTestImplementation "androidx.room:room-testing:$roomVersion"
+    implementation "androidx.room:room-rxjava3:$roomVersion"
 
     // navigation
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"

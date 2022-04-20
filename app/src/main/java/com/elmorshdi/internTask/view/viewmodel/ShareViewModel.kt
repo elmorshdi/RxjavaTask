@@ -6,8 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.elmorshdi.internTask.datasource.model.ProductResponse
-import com.elmorshdi.internTask.datasource.model.UserResponse
 import com.elmorshdi.internTask.domain.model.Product
+import com.elmorshdi.internTask.domain.model.UserData
 import com.elmorshdi.internTask.domain.repository.Repository
 import com.elmorshdi.internTask.helper.isEmailValid
 import com.elmorshdi.internTask.helper.isValidPassword
@@ -15,7 +15,9 @@ import com.elmorshdi.internTask.view.util.SharedPreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.observers.DisposableObserver
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.ResponseBody
@@ -23,6 +25,7 @@ import org.json.JSONObject
 import retrofit2.Response
 import java.net.HttpURLConnection.*
 import javax.inject.Inject
+
 
 @HiltViewModel
 class ShareViewModel @Inject constructor(
@@ -41,20 +44,46 @@ class ShareViewModel @Inject constructor(
         if (!compositeDisposable.isDisposed)
             compositeDisposable.dispose()
     }
+    fun addProduct(product: Product) {
+        val observable: Observable<Product> = Observable.just(product)
+        observable.subscribeOn(Schedulers.io())
+            .subscribe(object : Observer<Product> {
+                override fun onSubscribe(d: Disposable) {
+                }
 
-    private fun Observable<Response<ProductResponse>>.observe() {
+                override fun onNext(t: Product) {
+                    repository.addProductToDB(product)
+                }
+
+                override fun onError(e: Throwable) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onComplete() {
+                    TODO("Not yet implemented")
+                }
+
+            })
+    }
+    private fun Observable<Response<ProductResponse<ArrayList<Product>>>>.observe() {
         _uiStateFlow.value = UiState.Loading
         this.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeWith(object : DisposableObserver<Response<ProductResponse>>() {
-                override fun onNext(response: Response<ProductResponse>) {
+            .subscribeWith(object :
+                DisposableObserver<Response<ProductResponse<ArrayList<Product>>>>() {
+                override fun onNext(response: Response<ProductResponse<ArrayList<Product>>>) {
                     println("response:" + response.code())
                     when (response.code()) {
                         200 -> {
                             _uiStateFlow.value = UiState.Success
                             if (response.body()?.data != null) {
-                                val productsList = response.body()?.data
-                                _productsList.postValue(productsList!!)
+                                val productsList = response.body()?.data!!
+                                _productsList.postValue(productsList)
+                                repository.deleteCashedProduct()
+                                productsList.forEach {
+                                   addProduct(it)
+                                }
+                             // get count of table rows
                             }
                         }
                         // not found
@@ -67,7 +96,6 @@ class ShareViewModel @Inject constructor(
                         //Server ERROR
                         HTTP_INTERNAL_ERROR -> _uiStateFlow.value =
                             UiState.NetworkError("Server Error try later ")
-
                         HTTP_CLIENT_TIMEOUT -> {
                             _uiStateFlow.value =
                                 UiState.NetworkError("Request Timeout Check your connection")
@@ -104,6 +132,7 @@ class ShareViewModel @Inject constructor(
                     price = price.toInt(),
                     quantity = quantity.toInt()
                 )
+
                 repository.postProduct(product).observe()
 
 
@@ -115,6 +144,7 @@ class ShareViewModel @Inject constructor(
     fun deleteProduct(id: Int) {
         _uiStateFlow.value = UiState.Loading
         repository.deleteProduct(id).observe()
+
     }
 
     // to login and get(token ,user name )
@@ -131,8 +161,9 @@ class ShareViewModel @Inject constructor(
                 val observable = repository.login(email, password)
                 observable.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(object : DisposableObserver<Response<UserResponse>>() {
-                        override fun onNext(it: Response<UserResponse>) {
+                    .subscribeWith(object :
+                        DisposableObserver<Response<ProductResponse<UserData>>>() {
+                        override fun onNext(it: Response<ProductResponse<UserData>>) {
                             val result = it.body()
                             if (it.isSuccessful && result != null) {
                                 val token = it.body()?.token!!
@@ -145,13 +176,8 @@ class ShareViewModel @Inject constructor(
                                 )
                                 _uiStateFlow.value = UiState.Success
                             } else {
-                                try {
-                                    _uiStateFlow.value =
-                                        UiState.NetworkError(it.body()?.message!!)
-                                } catch (e: java.lang.Exception) {
-                                    _uiStateFlow.value =
-                                        UiState.NetworkError(e.message!!)
-                                }
+                                _uiStateFlow.value =
+                                    UiState.NetworkError(getError(it.errorBody()!!))
                             }
                         }
 
@@ -171,6 +197,8 @@ class ShareViewModel @Inject constructor(
     fun getProducts() {
         _uiStateFlow.value = UiState.Loading
         repository.getProducts().observe()
+
+
     }
 
     sealed class Error {
@@ -194,4 +222,32 @@ class ShareViewModel @Inject constructor(
         val jObjError = JSONObject(response.string())
         return jObjError.getString("message")
     }
+
+
+    fun getCashedData() {
+        println("t.toString()")
+
+        _uiStateFlow.value = UiState.Loading
+        repository.getCashedProduct().subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWith(object :
+                DisposableObserver<List<Product>>() {
+                override fun onNext(t: List<Product>) {
+                    _uiStateFlow.postValue(UiState.Success)
+                    _productsList.postValue(t)
+                    println(t.toString())
+
+                }
+
+                override fun onError(e: Throwable) {
+                    _uiStateFlow.value = UiState.NetworkError(e.message!!)
+
+                }
+
+                override fun onComplete() {
+                }
+
+            })
+    }
+
 }

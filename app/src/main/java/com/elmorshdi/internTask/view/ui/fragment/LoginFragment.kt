@@ -43,45 +43,44 @@ class LoginFragment : Fragment() {
             val password = binding.loginPasswordEditText.text?.trim().toString()
             viewModel.login(email, password)
         }
-        viewModel.uiStateFlow.observe(viewLifecycleOwner, Observer {event ->
-
-                when (event) {
-                    is ShareViewModel.UiState.Success -> {
-                        binding.loginSpinKit.isVisible = false
-
-                        navigateToMain()
-                    }
-                    is ShareViewModel.UiState.NetworkError -> {
-                        requireContext().toast(event.errorMessage)
-                    }
-                    is ShareViewModel.UiState.ValidationError -> {
-                        clearError()
-                        binding.loginSpinKit.isVisible = false
-                        when (event.error) {
-
-                            is ShareViewModel.Error.PasswordNotValid -> {
-                                binding.loginPasswordTextField.boxStrokeColor = Color.RED
-                                binding.errorTextView.isVisible = true
-                                binding.errorTextView.text = getString(R.string.Invalid_password)
-                            }
-                            is ShareViewModel.Error.EmailNotValid -> {
-                                binding.loginEmailTextField.error =
-                                    getString(R.string.enter_valid_email)
-                            }
-                            else -> {
-                                binding.loginEmailTextField.error =
-                                    getString(R.string.an_error_occurred)
-                            }
+        viewModel.uiStateFlow.observe(viewLifecycleOwner, Observer { event ->
+            when (event) {
+                is ShareViewModel.UiState.Success -> {
+                    binding.loginSpinKit.isVisible = false
+                    navigateToMain()
+                }
+                is ShareViewModel.UiState.NetworkError -> {
+                    binding.loginSpinKit.isVisible = false
+                    requireContext().toast(event.errorMessage)
+                }
+                is ShareViewModel.UiState.ValidationError -> {
+                    clearError()
+                    binding.loginSpinKit.isVisible = false
+                    when (event.error) {
+                        is ShareViewModel.Error.PasswordNotValid -> {
+                            binding.loginPasswordTextField.boxStrokeColor = Color.RED
+                            binding.errorTextView.isVisible = true
+                            binding.errorTextView.text = getString(R.string.Invalid_password)
+                        }
+                        is ShareViewModel.Error.EmailNotValid -> {
+                            binding.loginEmailTextField.error =
+                                getString(R.string.enter_valid_email)
+                        }
+                        else -> {
+                            binding.loginEmailTextField.error =
+                                getString(R.string.an_error_occurred)
                         }
                     }
-                    ShareViewModel.UiState.Loading -> {
-                        clearError()
-                        binding.loginSpinKit.isVisible = true
-                    }
-                    else -> Unit
                 }
+                ShareViewModel.UiState.Loading -> {
+                    clearError()
+                    binding.loginSpinKit.isVisible = true
+                }
+                else -> Unit
+            }
         })
     }
+
     private fun clearError() {
         binding.loginEmailTextField.isErrorEnabled = false
         binding.loginPasswordTextField.boxStrokeColor = Color.parseColor("#FF3E497A")
@@ -89,8 +88,12 @@ class LoginFragment : Fragment() {
     }
 
     private fun navigateToMain() {
-        val action = LoginFragmentDirections.actionLoginFragmentToMainFragment()
-        binding.root.findNavController().navigate(action)
+        try {
+            binding.root
+                .findNavController()
+                .navigate(LoginFragmentDirections.actionLoginFragmentToMainFragment())
+        } catch (e: Exception) {
+        }
     }
 
 }

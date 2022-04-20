@@ -14,7 +14,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.elmorshdi.internTask.databinding.FragmentMainBinding
 import com.elmorshdi.internTask.domain.model.Product
+import com.elmorshdi.internTask.helper.Constant.BASE_URL
 import com.elmorshdi.internTask.helper.alertDialog
+import com.elmorshdi.internTask.helper.checkForInternet
 import com.elmorshdi.internTask.view.adapter.HorizontalProductAdapter
 import com.elmorshdi.internTask.view.util.SharedPreferencesManager
 import com.elmorshdi.internTask.view.util.SharedPreferencesManager.getUsername
@@ -44,7 +46,16 @@ class MainFragment : Fragment(),
         binding.mainAddButton.setOnClickListener {
             val action = MainFragmentDirections.actionMainFragmentToAddItemFragment()
             view.findNavController().navigate(action)}
-        viewModel.getProducts()
+        if (checkForInternet(requireContext())) {
+            viewModel.getProducts()
+            println("online")
+        }
+        else {
+            viewModel.getCashedData()
+            println("offline")
+
+        }
+//       viewModel.getProducts()
         viewModel.uiStateFlow.observe(viewLifecycleOwner, Observer {
             when (it) {
                 is ShareViewModel.UiState.Loading ->
@@ -55,8 +66,6 @@ class MainFragment : Fragment(),
                             binding.mainRecyclerHor.isVisible = false
                             binding.errorText.isVisible = true
                             binding.errorText.text = it.errorMessage
-
-
                 }
                 is ShareViewModel.UiState.Success -> {
                     binding.spinKit.isVisible = false
@@ -76,7 +85,6 @@ class MainFragment : Fragment(),
         val adapterHor = HorizontalProductAdapter(interaction = this)
         adapterHor.submitList(products.value)
         binding.mainRecyclerHor.adapter = adapterHor
-
     }
 
     private fun signOut(view: View) {
