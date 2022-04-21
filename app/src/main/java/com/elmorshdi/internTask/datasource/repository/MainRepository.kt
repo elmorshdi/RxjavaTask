@@ -14,5 +14,5 @@ interface MainRepository {
     fun login(email: String, password: String): Observable<Response<ProductResponse<UserData>>>
     fun getCashedProduct():Observable<List<Product>>
     fun deleteCashedProduct():Completable
-    fun addProductToDB(products:  Product):Completable
+    fun addProductToDB(products:  Product): Completable
 }

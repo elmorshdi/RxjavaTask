@@ -45,24 +45,24 @@ class LoginFragment : Fragment() {
         }
         viewModel.uiStateFlow.observe(viewLifecycleOwner, Observer { event ->
             when (event) {
-                is ShareViewModel.UiState.Success -> {
+                is com.elmorshdi.internTask.view.util.UiState.Success -> {
                     binding.loginSpinKit.isVisible = false
                     navigateToMain()
                 }
-                is ShareViewModel.UiState.NetworkError -> {
+                is com.elmorshdi.internTask.view.util.UiState.NetworkError -> {
                     binding.loginSpinKit.isVisible = false
                     requireContext().toast(event.errorMessage)
                 }
-                is ShareViewModel.UiState.ValidationError -> {
+                is com.elmorshdi.internTask.view.util.UiState.ValidationError -> {
                     clearError()
                     binding.loginSpinKit.isVisible = false
                     when (event.error) {
-                        is ShareViewModel.Error.PasswordNotValid -> {
+                        is com.elmorshdi.internTask.view.util.Error.PasswordNotValid -> {
                             binding.loginPasswordTextField.boxStrokeColor = Color.RED
                             binding.errorTextView.isVisible = true
                             binding.errorTextView.text = getString(R.string.Invalid_password)
                         }
-                        is ShareViewModel.Error.EmailNotValid -> {
+                        is com.elmorshdi.internTask.view.util.Error.EmailNotValid -> {
                             binding.loginEmailTextField.error =
                                 getString(R.string.enter_valid_email)
                         }
@@ -72,7 +72,7 @@ class LoginFragment : Fragment() {
                         }
                     }
                 }
-                ShareViewModel.UiState.Loading -> {
+                com.elmorshdi.internTask.view.util.UiState.Loading -> {
                     clearError()
                     binding.loginSpinKit.isVisible = true
                 }

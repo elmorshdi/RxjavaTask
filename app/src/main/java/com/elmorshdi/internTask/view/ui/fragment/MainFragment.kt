@@ -20,6 +20,7 @@ import com.elmorshdi.internTask.helper.checkForInternet
 import com.elmorshdi.internTask.view.adapter.HorizontalProductAdapter
 import com.elmorshdi.internTask.view.util.SharedPreferencesManager
 import com.elmorshdi.internTask.view.util.SharedPreferencesManager.getUsername
+import com.elmorshdi.internTask.view.util.UiState
 import com.elmorshdi.internTask.view.viewmodel.ShareViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -58,16 +59,16 @@ class MainFragment : Fragment(),
 //       viewModel.getProducts()
         viewModel.uiStateFlow.observe(viewLifecycleOwner, Observer {
             when (it) {
-                is ShareViewModel.UiState.Loading ->
+                is UiState.Loading ->
                     binding.spinKit.isVisible = true
-                is ShareViewModel.UiState.NetworkError -> {
+                is UiState.NetworkError -> {
                     println("is ShareViewModel.Error.NetworkError")
                             binding.spinKit.isVisible = false
                             binding.mainRecyclerHor.isVisible = false
                             binding.errorText.isVisible = true
                             binding.errorText.text = it.errorMessage
                 }
-                is ShareViewModel.UiState.Success -> {
+                is UiState.Success -> {
                     binding.spinKit.isVisible = false
                     binding.errorText.isVisible = false
                     setUpRecyclerView(viewModel.productsList)

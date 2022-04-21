@@ -10,8 +10,8 @@ import io.reactivex.rxjava3.core.Observable
 import java.util.*
 @Dao
 interface ProductDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(product: Product):Completable
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(product: Product): Completable
     @Query("DELETE FROM product_table")
     fun deleteAll():Completable
     @Query("SELECT * FROM product_table ")

@@ -57,17 +57,17 @@ class ProductViewFragment : Fragment() {
         viewModel.uiStateFlow.observe(viewLifecycleOwner, Observer {event ->
 
                 when (event) {
-                    is ShareViewModel.UiState.Success -> {
+                    is com.elmorshdi.internTask.view.util.UiState.Success -> {
                         binding.viewSpinKit.isVisible=false
                         navigateToMain()
                         requireContext().toast("Product Deleted")
                     }
-                    is ShareViewModel.UiState.NetworkError -> {
+                    is com.elmorshdi.internTask.view.util.UiState.NetworkError -> {
                     binding.viewSpinKit.isVisible=false
                     requireContext().toast(event.errorMessage)
                      }
 
-                    is ShareViewModel.UiState.Loading -> {
+                    is com.elmorshdi.internTask.view.util.UiState.Loading -> {
                         binding.viewSpinKit.isVisible=true
                     }
                     else -> Unit

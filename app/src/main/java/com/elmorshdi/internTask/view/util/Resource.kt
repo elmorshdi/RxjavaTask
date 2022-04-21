@@ -1,16 +1,47 @@
 package com.elmorshdi.internTask.view.util
 
-sealed class Resource<out T> {
-     data class  Success<out T>(val data: T) : Resource<T>()
-    data class  Error(val error : Failure) : Resource<Nothing>()
-    object  Loading: Resource<Nothing>()
+import okhttp3.ResponseBody
+import org.json.JSONObject
+import java.net.HttpURLConnection
+
+
+sealed class Error {
+    object PasswordNotValid : Error()
+    object EmailNotValid : Error()
+    object NameNotValid : Error()
+    object PriceNotValid : Error()
+    object QuantityNotValid : Error()
 }
-sealed class Failure {
-    object NetworkConnectionError : Failure()
-    sealed class ServerError : Failure(){
-        object NotFound : ServerError()
-        object ServiceUnavailable : ServerError()
-        object AccessDenied : ServerError()
+
+sealed class UiState {
+    data class NetworkError(val errorMessage: String) : UiState()
+    object Success : UiState()
+    data class ValidationError(val error: Error) : UiState()
+    object Loading : UiState()
+    object Empty : UiState()
+}
+
+fun getNetworkError(code: Int, errorBody: ResponseBody): UiState {
+    return when (code) {
+        // not found
+        HttpURLConnection.HTTP_NOT_FOUND -> UiState.NetworkError("Not Found")
+        // access denied
+        HttpURLConnection.HTTP_FORBIDDEN -> UiState.NetworkError("AccessDenied")
+        // unavailable service
+        HttpURLConnection.HTTP_UNAVAILABLE -> UiState.NetworkError("ServiceUnavailable")
+        //Server ERROR
+        HttpURLConnection.HTTP_INTERNAL_ERROR -> UiState.NetworkError("Server Error try later ")
+        // HTTP_CLIENT_TIMEOUT
+        HttpURLConnection.HTTP_CLIENT_TIMEOUT -> UiState.NetworkError("Request Timeout Check your connection")
+        // all the others will be treated as unknown error
+        422 -> UiState.NetworkError(getError(errorBody))
+        else -> UiState.NetworkError("An Error Occur")
+
     }
-    object UnknownError : Failure()
+}
+
+//To get error message from JsonBody
+private fun getError(response: ResponseBody): String {
+    val jObjError = JSONObject(response.string())
+    return jObjError.getString("message")
 }

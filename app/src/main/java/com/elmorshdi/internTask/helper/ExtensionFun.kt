@@ -5,7 +5,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.widget.Toast
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -34,15 +33,17 @@ fun CharSequence.isValidPassword(): Boolean {
     val matcher = pattern.matcher(this)
     return matcher.matches()
 }
-  fun checkForInternet(context: Context): Boolean {
+
+fun checkForInternet(context: Context): Boolean {
 
     // register activity with the connectivity manager service
-    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-          val network = connectivityManager.activeNetwork ?: return false
-         val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
         return when {
             activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
 
@@ -60,4 +61,4 @@ fun CharSequence.isValidPassword(): Boolean {
     }
 }
 
- fun Context.toast(message: CharSequence) = Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+fun Context.toast(message: CharSequence) = Toast.makeText(this, message, Toast.LENGTH_LONG).show()

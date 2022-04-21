@@ -42,28 +42,28 @@ open class AddItemFragment : Fragment() {
         viewModel.uiStateFlow.observe(viewLifecycleOwner, Observer {event ->
 
                 when (event) {
-                    is ShareViewModel.UiState.Success -> {
+                    is com.elmorshdi.internTask.view.util.UiState.Success -> {
                         binding.addSpinKit.isVisible = false
                         navigateToMain()
                         requireContext().toast("Product Added")
                     }
-                    is ShareViewModel.UiState.NetworkError -> {
+                    is com.elmorshdi.internTask.view.util.UiState.NetworkError -> {
                     requireContext().toast(event.errorMessage)
                 }
-                    is ShareViewModel.UiState.ValidationError -> {
+                    is com.elmorshdi.internTask.view.util.UiState.ValidationError -> {
                         clearError()
                         binding.addSpinKit.isVisible = false
                         when (event.error) {
 
-                            is ShareViewModel.Error.NameNotValid -> {
+                            is com.elmorshdi.internTask.view.util.Error.NameNotValid -> {
                                 binding.addNameTextField.error =
                                     "Invalid name can't be a blank or a number"
                             }
-                            is ShareViewModel.Error.PriceNotValid -> {
+                            is com.elmorshdi.internTask.view.util.Error.PriceNotValid -> {
                                 binding.addPriceTextField.error =
                                     "Invalid price can't be empty or zero"
                             }
-                            is ShareViewModel.Error.QuantityNotValid -> {
+                            is com.elmorshdi.internTask.view.util.Error.QuantityNotValid -> {
                                 binding.addQuantityTextField.error =
                                     "Invalid quantity cannot be empty or zero"
                             }
@@ -73,7 +73,7 @@ open class AddItemFragment : Fragment() {
                             }
                         }
                     }
-                    is ShareViewModel.UiState.Loading -> {
+                    is com.elmorshdi.internTask.view.util.UiState.Loading -> {
                         clearError()
                         binding.addSpinKit.isVisible = true
                     }
