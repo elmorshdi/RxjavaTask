@@ -1,6 +1,8 @@
 package com.elmorshdi.internTask.view.viewmodel
 
 import android.content.SharedPreferences
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -23,6 +25,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import retrofit2.Response
 import javax.inject.Inject
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class ShareViewModel @Inject constructor(
     private val repository: Repository
@@ -110,7 +114,7 @@ class ShareViewModel @Inject constructor(
                         }
 
                         override fun onError(e: Throwable) {
-                            _uiStateFlow.value = UiState.NetworkError(e.message!!)
+                            _uiStateFlow.value = UiState.NetworkError("An Error Occur")
                         }
 
                         override fun onComplete() {
@@ -137,7 +141,7 @@ class ShareViewModel @Inject constructor(
                 }
 
                 override fun onError(e: Throwable) {
-                    _uiStateFlow.value = UiState.NetworkError(e.message!!)
+                    _uiStateFlow.value = UiState.NetworkError("An Error Occur")
                 }
 
                 override fun onComplete() {}
@@ -176,7 +180,7 @@ class ShareViewModel @Inject constructor(
         }
     }
 
-    //------------------------------CashedData---------------------------------------------
+    //End------------------------------CashedData---------------------------------------------
     private fun Observable<Response<ProductResponse<ArrayList<Product>>>>.observe() {
         _uiStateFlow.value = UiState.Loading
         this.subscribeOn(Schedulers.io())
@@ -199,7 +203,7 @@ class ShareViewModel @Inject constructor(
                 }
 
                 override fun onError(e: Throwable) {
-                    _uiStateFlow.value = UiState.NetworkError(e.message!!)
+                    _uiStateFlow.value = UiState.NetworkError("An Error Occur")
                 }
 
                 override fun onComplete() {}
@@ -212,5 +216,6 @@ class ShareViewModel @Inject constructor(
         if (!compositeDisposable.isDisposed)
             compositeDisposable.dispose()
     }
+
 
 }

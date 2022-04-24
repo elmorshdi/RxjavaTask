@@ -16,4 +16,5 @@ interface ProductDao {
     fun deleteAll():Completable
     @Query("SELECT * FROM product_table ")
     fun getAll(): Observable<List<Product>>
+
 }
